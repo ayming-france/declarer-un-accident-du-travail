@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DAT Externalisation - Ayming</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue-primary: #11a9e6;
+      --blue-accent: #0da4e8;
+      --blue-dark: #00456d;
+      --gradient-blue-start: #0fa7e2;
+      --gradient-green-end: #0ab38c;
+      --gradient-brand-horizontal: linear-gradient(90deg, var(--gradient-blue-start), var(--gradient-green-end));
+      --text-dark: #0f172a;
+      --text-gray: #6b7280;
+      --text-light: #9ca3af;
+      --bg-white: #ffffff;
+      --bg-light: #f8fafc;
+      --bg-subtle: #eef2f6;
+      --overlay-blue-soft: rgba(17, 169, 230, 0.1);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+      --nav-width: 260px;
+      --nav-collapsed: 20px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-white);
+      color: var(--text-dark);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* ===== NAVIGATION ===== */
+    .chapter-nav {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: var(--nav-width);
+      height: 100vh;
+      background: var(--bg-light);
+      border-right: 1px solid var(--bg-subtle);
+      padding: 40px 24px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(calc(-1 * var(--nav-width) + var(--nav-collapsed)));
+      transition: transform 0.3s ease;
+    }
+
+    .chapter-nav:hover,
+    .chapter-nav.open {
+      transform: translateX(0);
+    }
+
+    .nav-toggle {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      opacity: 0.3;
+      transition: opacity 0.2s;
+    }
+
+    .chapter-nav:hover .nav-toggle {
+      opacity: 0;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 12px;
+      height: 1.5px;
+      background: var(--text-gray);
+      border-radius: 1px;
+    }
+
+    .nav-header {
+      margin-bottom: 40px;
+      padding-right: 30px;
+    }
+
+    .nav-logo {
+      height: 32px;
+      margin-bottom: 8px;
+    }
+
+    .nav-logo img {
+      height: 100%;
+      width: auto;
+    }
+
+    .nav-subtitle {
+      font-size: 11px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-section {
+      margin-bottom: 28px;
+    }
+
+    .nav-section-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 14px;
+      padding-left: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      margin-bottom: 6px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 13px;
+      color: var(--text-gray);
+    }
+
+    .nav-item:hover {
+      background: var(--overlay-blue-soft);
+      color: var(--blue-primary);
+    }
+
+    .nav-item.active {
+      background: var(--blue-primary);
+      color: white;
+    }
+
+    .nav-item-number {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .nav-item.active .nav-item-number {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    /* ===== SLIDE COUNTER ===== */
+    .slide-counter {
+      position: fixed;
+      top: 30px;
+      right: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-gray);
+      z-index: 100;
+    }
+
+    .slide-counter .current {
+      color: var(--blue-accent);
+      font-weight: 600;
+    }
+
+    /* ===== PRESENTATION CONTAINER ===== */
+    .presentation {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      transition: padding-left 0.3s ease;
+      padding-left: var(--nav-collapsed);
+    }
+
+    .chapter-nav:hover ~ .presentation,
+    .chapter-nav.open ~ .presentation {
+      padding-left: var(--nav-width);
+    }
+
+    /* ===== SLIDES ===== */
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      padding: 60px 80px;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 1;
+    }
+
+    .slide-inner {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* ===== COVER SLIDE ===== */
+    .slide.cover {
+      padding: 0;
+    }
+
+    .cover-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+      height: 100%;
+    }
+
+    .cover-left {
+      background: var(--gradient-brand-horizontal);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px;
+      position: relative;
+    }
+
+    .cover-logo {
+      position: absolute;
+      top: 50px;
+      left: 80px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cover-logo img {
+      height: 100%;
+      filter: brightness(0) invert(1);
+    }
+
+    .cover-title {
+      font-size: 52px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.15;
+    }
+
+    .cover-subtitle {
+      font-size: 20px;
+      color: rgba(255,255,255,0.85);
+      margin-top: 20px;
+      font-weight: 400;
+    }
+
+    .cover-right {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover-right::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 150px;
+      height: 100%;
+      background: linear-gradient(90deg, var(--gradient-green-end) 0%, transparent 100%);
+      z-index: 1;
+    }
+
+    .cover-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    .slide-title {
+      font-size: 44px;
+      line-height: 1.2;
+      margin-bottom: 50px;
+      text-align: center;
+    }
+
+    .title-light {
+      font-weight: 400;
+      color: var(--blue-accent);
+    }
+
+    .title-bold {
+      font-weight: 700;
+      color: var(--blue-accent);
+    }
+
+    .slide-subtitle {
+      font-size: 18px;
+      color: var(--text-gray);
+      margin-bottom: 50px;
+      font-weight: 400;
+      max-width: 900px;
+      line-height: 1.7;
+    }
+
+    /* ===== LAYOUT: SPLIT ===== */
+    .layout-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      width: 100%;
+      max-width: 1200px;
+      align-items: center;
+    }
+
+    .layout-split .content-side {
+      text-align: left;
+    }
+
+    .layout-split .content-side .slide-title {
+      text-align: left;
+      margin-bottom: 35px;
+    }
+
+    .layout-split .visual-side {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ===== LAYOUT: 3 COLUMNS ===== */
+    .three-columns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .column-card {
+      text-align: center;
+    }
+
+    .column-card .card-image {
+      width: 100%;
+      height: 200px;
+      background: var(--bg-subtle);
+      border-radius: 16px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .column-card .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .column-card h3 {
+      font-size: 18px;
+      color: var(--blue-accent);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .column-card p {
+      font-size: 14px;
+      color: var(--text-gray);
+      line-height: 1.6;
+    }
+
+    .column-card p strong {
+      color: var(--text-dark);
+    }
+
+    /* ===== PARAGRAPH STYLES ===== */
+    .content-paragraph {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--text-gray);
+      margin-bottom: 22px;
+      text-align: left;
+    }
+
+    .content-paragraph strong {
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+
+    .content-paragraph.highlight {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--blue-dark);
+    }
+
+    /* ===== IMAGE CONTAINER ===== */
+    .image-container {
+      width: 100%;
+      max-width: 480px;
+      height: 360px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+
+    .image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .floating-badge {
+      position: absolute;
+      background: white;
+      border-radius: 12px;
+      padding: 12px 18px;
+      box-shadow: var(--shadow-md);
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .floating-badge.top-right {
+      top: 20px;
+      right: -15px;
+    }
+
+    .floating-badge.bottom-left {
+      bottom: 25px;
+      left: -15px;
+    }
+
+    .floating-badge .badge-number {
+      color: #ef4444;
+      font-weight: 700;
+    }
+
+    .floating-badge svg {
+      width: 18px;
+      height: 18px;
+      color: var(--blue-accent);
+    }
+
+    /* ===== STATS CARDS ===== */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 35px;
+      width: 100%;
+      max-width: 950px;
+    }
+
+    .stat-card {
+      background: var(--bg-white);
+      border-radius: 20px;
+      padding: 40px 30px;
+      box-shadow: var(--shadow-md);
+      text-align: center;
+      border: 1px solid var(--bg-subtle);
+    }
+
+    .stat-number {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--blue-accent);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-gray);
+      font-weight: 500;
+    }
+
+    /* ===== VARIANT: 4 STATS ===== */
+    .stats-row-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 25px;
+      width: 100%;
+      max-width: 1050px;
+    }
+
+    .stats-row-4 .stat-card {
+      padding: 30px 20px;
+    }
+
+    .stats-row-4 .stat-number {
+      font-size: 36px;
+    }
+
+    .stats-row-4 .stat-label {
+      font-size: 13px;
+    }
+
+    /* ===== TABLE STYLES ===== */
+    .table-container {
+      width: 100%;
+      max-width: 1050px;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .comparison-table th {
+      background: var(--blue-primary);
+      color: white;
+      padding: 20px 30px;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .comparison-table th:first-child {
+      text-align: center;
+    }
+
+    .comparison-table th:nth-child(2),
+    .comparison-table th:nth-child(3) {
+      text-align: left;
+    }
+
+    .comparison-table td {
+      padding: 24px 30px;
+      border-bottom: 1px solid var(--bg-subtle);
+      font-size: 14px;
+      background: var(--bg-white);
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comparison-table td:first-child {
+      font-weight: 600;
+      color: var(--text-dark);
+      text-align: center;
+      vertical-align: middle;
+      background: var(--bg-light);
+    }
+
+    .comparison-table td:nth-child(2),
+    .comparison-table td:nth-child(3) {
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .comparison-table ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .comparison-table li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+      line-height: 1.5;
+      color: var(--text-gray);
+    }
+
+    .comparison-table li:last-child {
+      margin-bottom: 0;
+    }
+
+    .comparison-table li::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--blue-accent);
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    /* ===== FEATURE GRID (4 items, 2x2) ===== */
+    .feature-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 50px 80px;
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      text-align: left;
+    }
+
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: var(--blue-primary);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .feature-icon svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    .feature-content h4 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .feature-content p {
+      font-size: 14px;
+      color: var(--text-gray);
+      line-height: 1.6;
+    }
+
+    /* ===== VALUE DETAIL SLIDE ===== */
+    .value-detail-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      width: 100%;
+      max-width: 1150px;
+      align-items: center;
+    }
+
+    .value-detail-content {
+      text-align: left;
+    }
+
+    .value-detail-content h2 {
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--blue-accent);
+      margin-bottom: 30px;
+      line-height: 1.2;
+    }
+
+    .value-detail-list {
+      list-style: none;
+    }
+
+    .value-detail-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      font-size: 17px;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .value-detail-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    .value-detail-list .check-icon {
+      width: 26px;
+      height: 26px;
+      flex-shrink: 0;
+      color: var(--blue-accent);
+      margin-top: 2px;
+    }
+
+    .value-detail-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .value-image-container {
+      width: 100%;
+      max-width: 480px;
+      height: 340px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      background: var(--bg-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .value-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .value-image-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+    }
+
+    .value-image-placeholder svg {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    .value-image-placeholder span {
+      font-size: 14px;
+    }
+
+    /* ===== PROCESS TIMELINE ===== */
+    .process-timeline {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .process-step {
+      text-align: center;
+      flex: 1;
+      max-width: 260px;
+    }
+
+    .step-number {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--gradient-brand-horizontal);
+      color: white;
+      font-size: 32px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .step-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .step-duration {
+      font-size: 14px;
+      color: var(--blue-accent);
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .step-description {
+      font-size: 14px;
+      color: var(--text-gray);
+      line-height: 1.6;
+    }
+
+    .step-arrow {
+      font-size: 24px;
+      color: var(--text-light);
+      margin-top: 30px;
+      flex-shrink: 0;
+    }
+
+    /* ===== VARIANT: 4 STEPS TIMELINE ===== */
+    .process-timeline-4 {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 25px;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .process-timeline-4 .process-step {
+      text-align: center;
+      flex: 1;
+      max-width: 220px;
+    }
+
+    .process-timeline-4 .step-number {
+      width: 70px;
+      height: 70px;
+      font-size: 28px;
+      margin: 0 auto 20px;
+    }
+
+    .process-timeline-4 .step-title {
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+
+    .process-timeline-4 .step-duration {
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .process-timeline-4 .step-description {
+      font-size: 13px;
+    }
+
+    .process-timeline-4 .step-arrow {
+      font-size: 20px;
+      margin-top: 25px;
+    }
+
+    /* ===== REQUIREMENTS LIST ===== */
+    .requirements-box {
+      background: var(--bg-light);
+      border-radius: 20px;
+      padding: 45px 55px;
+      border-left: 5px solid var(--blue-accent);
+      text-align: left;
+      width: 100%;
+      max-width: 750px;
+    }
+
+    .requirements-box h4 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 30px;
+    }
+
+    .requirements-box ul {
+      list-style: none;
+    }
+
+    .requirements-box li {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 16px 0;
+      font-size: 17px;
+      color: var(--text-gray);
+      border-bottom: 1px solid var(--bg-subtle);
+    }
+
+    .requirements-box li:last-child {
+      border-bottom: none;
+    }
+
+    .requirements-box li .check-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--gradient-brand-horizontal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .requirements-box li .check-icon svg {
+      width: 16px;
+      height: 16px;
+      color: white;
+    }
+
+    /* ===== LOGO ===== */
+    .company-logo {
+      position: absolute;
+      bottom: 35px;
+      right: 50px;
+      height: 30px;
+    }
+
+    .company-logo img {
+      height: 100%;
+      width: auto;
+    }
+
+    /* ===== FAQ CARDS ===== */
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+      width: 100%;
+      max-width: 950px;
+    }
+
+    .faq-card {
+      background: var(--bg-white);
+      border-radius: 16px;
+      padding: 28px 32px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--bg-subtle);
+      text-align: left;
+    }
+
+    .faq-card h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--blue-accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .faq-card h4 svg {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .faq-card p {
+      font-size: 14px;
+      color: var(--text-gray);
+      line-height: 1.65;
+    }
+
+    /* ===== QUOTE STYLE ===== */
+    .quote-block {
+      background: var(--bg-light);
+      border-radius: 16px;
+      padding: 35px 45px;
+      border-left: 4px solid var(--blue-accent);
+      max-width: 800px;
+      text-align: left;
+      margin-bottom: 50px;
+    }
+
+    .quote-block p {
+      font-style: italic;
+      color: var(--text-dark);
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .quote-block .quote-author {
+      margin-top: 18px;
+      font-style: normal;
+      font-weight: 600;
+      color: var(--text-gray);
+      font-size: 14px;
+    }
+
+    /* ===== IDEAL WORLD CARDS ===== */
+    .ideal-card .card-image {
+      background: linear-gradient(135deg, #e0f4f8 0%, #e3f9ed 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ideal-card .card-image svg {
+      width: 65px;
+      height: 65px;
+      color: var(--blue-accent);
+    }
+
+    /* ===== KEYBOARD HINT ===== */
+    .keyboard-hint {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 8px;
+      background: var(--bg-subtle);
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+      margin: 0 2px;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(25px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide.active .slide-title,
+    .slide.active .cover-title,
+    .slide.active .value-detail-content h2 {
+      animation: fadeInUp 0.5s ease forwards;
+    }
+
+    .slide.active .slide-subtitle,
+    .slide.active .cover-subtitle {
+      animation: fadeInUp 0.5s ease 0.1s forwards;
+      opacity: 0;
+      animation-fill-mode: forwards;
+    }
+
+    .slide.active .content-paragraph {
+      animation: fadeInUp 0.5s ease forwards;
+      opacity: 0;
+    }
+
+    .slide.active .content-paragraph:nth-child(2) { animation-delay: 0.1s; }
+    .slide.active .content-paragraph:nth-child(3) { animation-delay: 0.15s; }
+    .slide.active .content-paragraph:nth-child(4) { animation-delay: 0.2s; }
+
+    .slide.active .column-card,
+    .slide.active .stat-card,
+    .slide.active .faq-card,
+    .slide.active .feature-item,
+    .slide.active .process-step {
+      animation: fadeInUp 0.5s ease forwards;
+      opacity: 0;
+    }
+
+    .slide.active .column-card:nth-child(1),
+    .slide.active .stat-card:nth-child(1),
+    .slide.active .feature-item:nth-child(1),
+    .slide.active .process-step:nth-child(1) { animation-delay: 0.15s; }
+    .slide.active .column-card:nth-child(2),
+    .slide.active .stat-card:nth-child(2),
+    .slide.active .feature-item:nth-child(2) { animation-delay: 0.25s; }
+    .slide.active .column-card:nth-child(3),
+    .slide.active .stat-card:nth-child(3),
+    .slide.active .feature-item:nth-child(3),
+    .slide.active .process-step:nth-child(3) { animation-delay: 0.35s; }
+    .slide.active .feature-item:nth-child(4) { animation-delay: 0.45s; }
+
+    .slide.active .faq-card:nth-child(1) { animation-delay: 0.1s; }
+    .slide.active .faq-card:nth-child(2) { animation-delay: 0.2s; }
+    .slide.active .faq-card:nth-child(3) { animation-delay: 0.3s; }
+    .slide.active .faq-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .slide.active .value-detail-list li {
+      animation: fadeInUp 0.5s ease forwards;
+      opacity: 0;
+    }
+
+    .slide.active .value-detail-list li:nth-child(1) { animation-delay: 0.15s; }
+    .slide.active .value-detail-list li:nth-child(2) { animation-delay: 0.25s; }
+    .slide.active .value-detail-list li:nth-child(3) { animation-delay: 0.35s; }
+    .slide.active .value-detail-list li:nth-child(4) { animation-delay: 0.45s; }
+  </style>
+</head>
+<body>
+
+  <!-- Chapter Navigation -->
+  <nav class="chapter-nav">
+    <div class="nav-toggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div class="nav-header">
+      <div class="nav-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+      <div class="nav-subtitle">DAT Externalisation</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Le Marché</div>
+      <div class="nav-item active" data-slide="0">
+        <span class="nav-item-number">01</span>
+        Couverture
+      </div>
+      <div class="nav-item" data-slide="1">
+        <span class="nav-item-number">02</span>
+        Insight
+      </div>
+      <div class="nav-item" data-slide="2">
+        <span class="nav-item-number">03</span>
+        Alternatives
+      </div>
+      <div class="nav-item" data-slide="3">
+        <span class="nav-item-number">04</span>
+        Comparaison
+      </div>
+      <div class="nav-item" data-slide="4">
+        <span class="nav-item-number">05</span>
+        Monde Idéal
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Notre Solution</div>
+      <div class="nav-item" data-slide="5">
+        <span class="nav-item-number">06</span>
+        Introduction
+      </div>
+      <div class="nav-item" data-slide="6">
+        <span class="nav-item-number">07</span>
+        Valeur
+      </div>
+      <div class="nav-item" data-slide="10">
+        <span class="nav-item-number">08</span>
+        Preuves
+      </div>
+      <div class="nav-item" data-slide="11">
+        <span class="nav-item-number">09</span>
+        Questions
+      </div>
+      <div class="nav-item" data-slide="12">
+        <span class="nav-item-number">10</span>
+        Processus
+      </div>
+      <div class="nav-item" data-slide="13">
+        <span class="nav-item-number">11</span>
+        Démarrage
+      </div>
+    </div>
+  </nav>
+
+  <!-- Slide Counter -->
+  <div class="slide-counter"><span class="current">1</span>/14</div>
+
+  <!-- Presentation -->
+  <main class="presentation">
+
+    <!-- SLIDE 0: COVER -->
+    <section class="slide cover active" data-chapter="cover">
+      <div class="cover-layout">
+        <div class="cover-left">
+          <div class="cover-logo">
+            <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+          </div>
+          <h1 class="cover-title">
+            DAT<br>Externalisation
+          </h1>
+          <p class="cover-subtitle">Accompagnement expert de vos déclarations d'accidents du travail avec respect du délai légal de 48h</p>
+        </div>
+        <div class="cover-right">
+          <img class="cover-image" src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1000&h=1200&fit=crop" alt="Business meeting">
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 1: INSIGHT -->
+    <section class="slide" data-chapter="insight">
+      <div class="layout-split">
+        <div class="content-side">
+          <h1 class="slide-title">
+            <span class="title-light">Accident du travail :</span><br>
+            <span class="title-bold">gérer la déclaration, un défi complexe</span>
+          </h1>
+
+          <p class="content-paragraph">
+            La plupart des organisations traitent les déclarations d'accidents du travail comme des <strong>formulaires administratifs</strong>. Mais ce sont en réalité des dossiers probants qui peuvent impacter votre sinistralité pendant des années.
+          </p>
+
+          <p class="content-paragraph">
+            Quand un accident survient, vous avez <strong>48h pour déclarer</strong>. Ce délai urgent fragmente votre réponse entre plusieurs intervenants. Les RH se mobilisent pour respecter le délai, mais des preuves initiales insuffisantes vous rendent vulnérable aux contestations CPAM.
+          </p>
+
+          <p class="content-paragraph highlight">
+            Chez Ayming, nous croyons que chaque déclaration est un dossier stratégique qui mérite une expertise juridique dès la première minute.
+          </p>
+        </div>
+
+        <div class="visual-side">
+          <div class="image-container">
+            <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&h=600&fit=crop" alt="Documents">
+            <div class="floating-badge top-right">
+              <span class="badge-number">€750-€3750</span> amende
+            </div>
+            <div class="floating-badge bottom-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              >50% succès recours
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 2: ALTERNATIVES - Cards -->
+    <section class="slide" data-chapter="alternatives">
+      <div class="slide-inner">
+        <h1 class="slide-title">
+          <span class="title-light">Comment les organisations gèrent</span><br>
+          <span class="title-bold">les DAT aujourd'hui</span>
+        </h1>
+
+        <div class="three-columns">
+          <div class="column-card">
+            <div class="card-image">
+              <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&h=400&fit=crop" alt="Internal team">
+            </div>
+            <h3>Gestion manuelle interne</h3>
+            <p><strong>Contrôle total mais risqué.</strong> Les équipes RH gèrent en interne avec des processus manuels. Risque de retard et preuves insuffisantes sous pression.</p>
+          </div>
+
+          <div class="column-card">
+            <div class="card-image">
+              <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop" alt="SIRH Dashboard">
+            </div>
+            <h3>SIRH avec module AT/MP</h3>
+            <p><strong>Intégré mais limité.</strong> Systèmes RH génériques avec modules AT. Focus sur le dépôt administratif, pas sur la qualité des preuves.</p>
+          </div>
+
+          <div class="column-card">
+            <div class="card-image">
+              <img src="https://images.unsplash.com/photo-1434626881859-194d67b2b86f?w=600&h=400&fit=crop" alt="Clock">
+            </div>
+            <h3>Statu quo fragmenté</h3>
+            <p><strong>Réactif et vulnérable.</strong> Gestion ad hoc entre intervenants. Pression du délai 48h, qualité inconsistante.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 3: ALTERNATIVES - Table -->
+    <section class="slide" data-chapter="alternatives">
+      <div class="slide-inner">
+        <h1 class="slide-title">
+          <span class="title-light">Limitations des</span>
+          <span class="title-bold">méthodes actuelles</span>
+        </h1>
+
+        <div class="table-container">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th style="width: 20%;">Approche</th>
+                <th style="width: 40%;">Avantages</th>
+                <th style="width: 40%;">Inconvénients</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Gestion manuelle interne</td>
+                <td>
+                  <ul>
+                    <li>Contrôle interne complet</li>
+                    <li>Pas de coût externe</li>
+                    <li>Processus familier</li>
+                  </ul>
+                </td>
+                <td>
+                  <ul>
+                    <li>Risque de retard (amende €750-€3750)</li>
+                    <li>Preuves insuffisantes sous pression</li>
+                    <li>Réserves mal motivées</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td>SIRH</td>
+                <td>
+                  <ul>
+                    <li>Intégré aux données RH</li>
+                    <li>Information centralisée</li>
+                    <li>Outil familier</li>
+                  </ul>
+                </td>
+                <td>
+                  <ul>
+                    <li>Focus administratif uniquement</li>
+                    <li>Pas de recueil de preuves temps réel</li>
+                    <li>Pas d'expertise juridique</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td>Statu quo fragmenté</td>
+                <td>
+                  <ul>
+                    <li>Pas de changement requis</li>
+                    <li>Ressources existantes</li>
+                  </ul>
+                </td>
+                <td>
+                  <ul>
+                    <li>Vulnérabilité aux contestations</li>
+                    <li>Qualité inconsistante</li>
+                    <li>Pas de maîtrise des coûts</li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 4: MONDE IDÉAL -->
+    <section class="slide" data-chapter="monde-ideal">
+      <div class="slide-inner">
+        <h1 class="slide-title">
+          <span class="title-light">La solution idéale devrait</span><br>
+          <span class="title-bold">sécuriser, prouver et libérer</span>
+        </h1>
+
+        <div class="three-columns">
+          <div class="column-card ideal-card">
+            <div class="card-image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <h3>Respect du délai 48h</h3>
+            <p>Le délai légal toujours respecté, même dans les situations complexes ou les week-ends.</p>
+          </div>
+
+          <div class="column-card ideal-card">
+            <div class="card-image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <polyline points="9 12 11 14 15 10"/>
+              </svg>
+            </div>
+            <h3>Expertise juridique intégrée</h3>
+            <p>Réserves rédigées par des experts avec appui de cabinets d'avocats indépendants.</p>
+          </div>
+
+          <div class="column-card ideal-card">
+            <div class="card-image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                <polyline points="17 6 23 6 23 12"/>
+              </svg>
+            </div>
+            <h3>Maîtrise des coûts AT/MP</h3>
+            <p>Accompagnement mesurable pour la maîtrise de vos cotisations grâce à une gestion experte.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 5: INTRODUCTION -->
+    <section class="slide" data-chapter="introduction">
+      <div class="slide-inner">
+        <h1 class="slide-title">
+          <span class="title-light">C'est exactement</span><br>
+          <span class="title-bold">ce que nous avons construit</span>
+        </h1>
+
+        <p class="slide-subtitle">
+          Pour les <strong>Directeurs RH et Responsables Prévention</strong> qui ont besoin de <strong>sécuriser leurs déclarations AT</strong>,
+          Ayming est un <strong>service d'accompagnement spécialisé</strong> qui prend en charge vos déclarations avec expertise juridique
+          et vous accompagne pour la maîtrise de vos coûts AT/MP.
+        </p>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-number">35 000+</div>
+            <div class="stat-label">Accidents gérés par an</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">550 000+</div>
+            <div class="stat-label">Salariés couverts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">20+ ans</div>
+            <div class="stat-label">D'expertise AT/MP</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 6: VALEUR - Overview Grid -->
+    <section class="slide" data-chapter="valeur">
+      <div class="slide-inner">
+        <h1 class="slide-title">
+          <span class="title-light">Ce qu'Ayming vous apporte</span><br>
+          <span class="title-bold">de différent</span>
+        </h1>
+
+        <div class="feature-grid-4">
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div class="feature-content">
+              <h4>Sécurisation Phase Déclarative</h4>
+              <p>Expertise juridique, réserves motivées, respect du délai 48h</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                <polyline points="17 6 23 6 23 12"/>
+              </svg>
+            </div>
+            <div class="feature-content">
+              <h4>Maîtrise des Coûts AT/MP</h4>
+              <p>Preuves horodatées, reconnaissance de patterns sur 35 000 cas</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="feature-content">
+              <h4>Libération des Ressources</h4>
+              <p>Externalisation bout en bout, équipes RH libérées</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <div class="feature-content">
+              <h4>Couverture Internationale</h4>
+              <p>Présence dans 20+ pays pour les groupes internationaux</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 7: VALUE DETAIL 1 - Sécurisation -->
+    <section class="slide" data-chapter="valeur-1">
+      <div class="value-detail-layout">
+        <div class="value-detail-content">
+          <h2>Sécurisation de Votre Phase Déclarative</h2>
+
+          <ul class="value-detail-list">
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Prise en charge complète jusqu'à la décision CPAM
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Coordination avec cabinets d'avocats indépendants
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Rédaction argumentée de réserves par experts AT/MP
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Délai légal de 48h systématiquement respecté
+            </li>
+          </ul>
+        </div>
+
+        <div class="value-detail-visual">
+          <div class="value-image-container">
+            <div class="value-image-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="M21 15l-5-5L5 21"/>
+              </svg>
+              <span>Capture d'écran produit</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 8: VALUE DETAIL 2 - Maîtrise Coûts -->
+    <section class="slide" data-chapter="valeur-2">
+      <div class="value-detail-layout">
+        <div class="value-detail-content">
+          <h2>Maîtrise des Coûts AT/MP</h2>
+
+          <ul class="value-detail-list">
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Collecte de preuves horodatées via Acciline+
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Visibilité dashboard en temps réel
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Application MyAcci+ pour signalement proactif
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Reconnaissance de patterns sur 35 000 cas annuels
+            </li>
+          </ul>
+        </div>
+
+        <div class="value-detail-visual">
+          <div class="value-image-container">
+            <div class="value-image-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="M21 15l-5-5L5 21"/>
+              </svg>
+              <span>Capture d'écran produit</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 9: VALUE DETAIL 3 - Libération Ressources -->
+    <section class="slide" data-chapter="valeur-3">
+      <div class="value-detail-layout">
+        <div class="value-detail-content">
+          <h2>Libération des Ressources</h2>
+
+          <ul class="value-detail-list">
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Prise en charge complète du processus bout en bout
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Experts AT/MP dédiés avec disponibilité garantie
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Équipes RH libérées de la gestion de crise
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Estimation : 2,1 ETP récupérés
+            </li>
+          </ul>
+        </div>
+
+        <div class="value-detail-visual">
+          <div class="value-image-container">
+            <div class="value-image-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="M21 15l-5-5L5 21"/>
+              </svg>
+              <span>Capture d'écran produit</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 10: PREUVES -->
+    <section class="slide" data-chapter="preuves">
+      <div class="slide-inner">
+        <h1 class="slide-title">
+          <span class="title-light">La confiance de</span>
+          <span class="title-bold">leaders sectoriels</span>
+        </h1>
+
+        <div class="quote-block">
+          <p>"Avec Ayming, nous ne subissons plus les délais - nous les maîtrisons. La qualité de nos dossiers a transformé notre relation avec la CPAM."</p>
+          <p class="quote-author">— Directeur RH, Secteur Logistique</p>
+        </div>
+
+        <div class="stats-row-4">
+          <div class="stat-card">
+            <div class="stat-number">35 000+</div>
+            <div class="stat-label">Accidents gérés/an</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">550 000+</div>
+            <div class="stat-label">Salariés couverts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">89%</div>
+            <div class="stat-label">Recommandation</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">20+</div>
+            <div class="stat-label">Pays couverts</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 11: QUESTIONS -->
+    <section class="slide" data-chapter="questions">
+      <div class="slide-inner">
+        <h1 class="slide-title">
+          <span class="title-light">Questions qu'on nous</span>
+          <span class="title-bold">pose souvent</span>
+        </h1>
+
+        <div class="faq-grid">
+          <div class="faq-card">
+            <h4>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              Pourquoi externaliser mes DAT ?
+            </h4>
+            <p>Traiter chaque déclaration comme un dossier probant, respecter les délais, intégrer une stratégie d'optimisation dès le premier jour.</p>
+          </div>
+
+          <div class="faq-card">
+            <h4>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <path d="M8 21h8"/>
+                <path d="M12 17v4"/>
+              </svg>
+              Cela remplace notre SIRH ?
+            </h4>
+            <p>Non - notre service complète votre SIRH en gérant les phases critiques de collecte de faits et déclaration.</p>
+          </div>
+
+          <div class="faq-card">
+            <h4>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+              Acciline+ est obligatoire ?
+            </h4>
+            <p>Optionnel - adaptation aux outils existants possible, bien qu'Acciline+ offre les avantages de capture horodatée.</p>
+          </div>
+
+          <div class="faq-card">
+            <h4>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                <rect x="8" y="2" width="8" height="4" rx="1"/>
+              </svg>
+              Peut-on externaliser partiellement ?
+            </h4>
+            <p>Oui - externalisation totale, partielle (types sélectifs), ou autonomie guidée proposés après diagnostic.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 12: PROCESSUS -->
+    <section class="slide" data-chapter="processus">
+      <div class="slide-inner">
+        <h1 class="slide-title">
+          <span class="title-light">Prochaine étape :</span><br>
+          <span class="title-bold">Diagnostic de vos déclarations</span>
+        </h1>
+
+        <div class="process-timeline-4">
+          <div class="process-step">
+            <div class="step-number">1</div>
+            <div class="step-title">Diagnostic</div>
+            <div class="step-duration">2 semaines</div>
+            <div class="step-description">Analyse de vos déclarations actuelles, identification des opportunités</div>
+          </div>
+
+          <div class="step-arrow">→</div>
+
+          <div class="process-step">
+            <div class="step-number">2</div>
+            <div class="step-title">Proposition</div>
+            <div class="step-duration">+1 semaine</div>
+            <div class="step-description">Modèle sur-mesure : complet, partiel, ou autonomie guidée</div>
+          </div>
+
+          <div class="step-arrow">→</div>
+
+          <div class="process-step">
+            <div class="step-number">3</div>
+            <div class="step-title">Pilote</div>
+            <div class="step-duration">3 mois</div>
+            <div class="step-description">Démarrage avec un sous-ensemble pour démontrer la valeur</div>
+          </div>
+
+          <div class="step-arrow">→</div>
+
+          <div class="process-step">
+            <div class="step-number">4</div>
+            <div class="step-title">Déploiement</div>
+            <div class="step-duration">Selon planning</div>
+            <div class="step-description">Extension à l'ensemble de vos sites et types d'accidents</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 13: DÉMARRAGE -->
+    <section class="slide" data-chapter="demarrage">
+      <div class="slide-inner">
+        <h1 class="slide-title">
+          <span class="title-light">Ce dont nous avons besoin</span><br>
+          <span class="title-bold">pour démarrer</span>
+        </h1>
+
+        <div class="requirements-box">
+          <h4>Trois éléments simples</h4>
+          <ul>
+            <li>
+              <span class="check-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </span>
+              Accès aux données de déclarations des 12-24 derniers mois
+            </li>
+            <li>
+              <span class="check-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </span>
+              Entretien avec équipe RH (2 heures)
+            </li>
+            <li>
+              <span class="check-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </span>
+              Revue d'un échantillon de déclarations
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Keyboard Hint -->
+  <div class="keyboard-hint">
+    <span><span class="key">←</span><span class="key">→</span> Naviguer</span>
+    <span><span class="key">F</span> Plein écran</span>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const navItems = document.querySelectorAll('.nav-item');
+    const counter = document.querySelector('.slide-counter');
+    const totalSlides = slides.length;
+
+    // Configuration for nav-to-slide mapping
+    // Value detail slides (index 7 to 9) all map to nav item with data-slide="6"
+    const valueDetailStartIndex = 7;
+    const valueDetailCount = 3;
+
+    function updateSlide() {
+      slides.forEach((slide, index) => {
+        slide.classList.remove('active');
+        if (index === currentSlide) {
+          slide.classList.add('active');
+        }
+      });
+
+      navItems.forEach((item) => {
+        item.classList.remove('active');
+        const navSlideIndex = parseInt(item.dataset.slide);
+
+        // Check if current slide is a value detail slide
+        const isValueDetailSlide = currentSlide >= valueDetailStartIndex &&
+                                   currentSlide < valueDetailStartIndex + valueDetailCount;
+
+        if (navSlideIndex === currentSlide ||
+            (isValueDetailSlide && navSlideIndex === 6)) {
+          item.classList.add('active');
+        }
+      });
+
+      counter.innerHTML = `<span class="current">${currentSlide + 1}</span>/${totalSlides}`;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(index) {
+      if (index >= 0 && index < totalSlides) {
+        currentSlide = index;
+        updateSlide();
+      }
+    }
+
+    // Map nav items to actual slides (accounting for value detail slides)
+    function getSlideFromNav(navIndex) {
+      if (navIndex <= 6) return navIndex;
+      // After Valeur (6), we have value detail slides (7,8,9), then Preuves (10), etc.
+      return navIndex;
+    }
+
+    document.addEventListener('keydown', (e) => {
+      switch(e.key) {
+        case 'ArrowRight':
+        case ' ':
+          e.preventDefault();
+          nextSlide();
+          break;
+        case 'ArrowLeft':
+          prevSlide();
+          break;
+        case 'f':
+        case 'F':
+          toggleFullscreen();
+          break;
+        case 'Home':
+          goToSlide(0);
+          break;
+        case 'End':
+          goToSlide(totalSlides - 1);
+          break;
+      }
+    });
+
+    navItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        const navIndex = parseInt(item.dataset.slide);
+        const slideIndex = getSlideFromNav(navIndex);
+        goToSlide(slideIndex);
+      });
+    });
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+
+    document.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    });
+
+    function handleSwipe() {
+      const swipeThreshold = 50;
+      const diff = touchStartX - touchEndX;
+
+      if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+          nextSlide();
+        } else {
+          prevSlide();
+        }
+      }
+    }
+
+    updateSlide();
+  </script>
+
+</body>
+</html>
