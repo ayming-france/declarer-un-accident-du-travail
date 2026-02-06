@@ -1530,6 +1530,18 @@
       font-family: monospace;
       font-size: 11px;
       margin: 0 2px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .key:hover {
+      background: var(--blue-primary);
+      color: white;
+    }
+
+    .key:active {
+      transform: scale(0.95);
     }
 
     /* ===== ANIMATIONS ===== */
@@ -2562,10 +2574,10 @@
 
   </main>
 
-  <!-- Keyboard Hint -->
+  <!-- Keyboard Hint (clickable) -->
   <div class="keyboard-hint">
-    <span><span class="key">←</span><span class="key">→</span> Naviguer</span>
-    <span><span class="key">F</span> Plein écran</span>
+    <span><span class="key" id="key-prev">←</span><span class="key" id="key-next">→</span> Naviguer</span>
+    <span><span class="key" id="key-fullscreen">F</span> Plein écran</span>
   </div>
 
   <script>
@@ -2663,6 +2675,11 @@
         goToSlide(slideIndex);
       });
     });
+
+    // Clickable keyboard hints
+    document.getElementById('key-prev').addEventListener('click', prevSlide);
+    document.getElementById('key-next').addEventListener('click', nextSlide);
+    document.getElementById('key-fullscreen').addEventListener('click', toggleFullscreen);
 
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
