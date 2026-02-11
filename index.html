@@ -1143,6 +1143,66 @@
       width: auto;
     }
 
+    /* ===== ANCRAGE & IMPLANTATION ===== */
+    .ancrage-layout {
+      display: flex;
+      align-items: center;
+      gap: 60px;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .ancrage-text {
+      flex: 0 0 42%;
+    }
+
+    .ancrage-text p {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--text-gray);
+      text-align: left;
+    }
+
+    .ancrage-text p strong {
+      color: var(--text-dark);
+    }
+
+    .ancrage-map {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .ancrage-map img {
+      height: 540px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .implantation-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 0;
+    }
+
+    .implantation-na {
+      height: 540px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .implantation-eu {
+      height: 540px;
+      width: auto;
+      object-fit: contain;
+    }
+
     /* ===== FAQ CARDS ===== */
     .faq-grid {
       display: grid;
@@ -1704,14 +1764,18 @@
       </div>
       <div class="nav-item" data-slide="14">
         <span class="nav-item-number">10</span>
-        Questions
-      </div>
-      <div class="nav-item" data-slide="15">
-        <span class="nav-item-number">11</span>
-        Processus
+        Implantation
       </div>
       <div class="nav-item" data-slide="16">
+        <span class="nav-item-number">11</span>
+        Questions
+      </div>
+      <div class="nav-item" data-slide="17">
         <span class="nav-item-number">12</span>
+        Processus
+      </div>
+      <div class="nav-item" data-slide="18">
+        <span class="nav-item-number">13</span>
         Démarrage
       </div>
     </div>
@@ -2425,7 +2489,43 @@
       </div>
     </section>
 
-    <!-- SLIDE 14: QUESTIONS -->
+    <!-- SLIDE 14: ANCRAGE FRANCE -->
+    <section class="slide" data-chapter="implantation">
+      <div class="slide-inner">
+        <div class="ancrage-layout">
+          <div class="ancrage-text">
+            <h1 class="slide-title" style="text-align: left; margin-bottom: 28px;">Un fort ancrage <strong>en France</strong>...</h1>
+            <p>Nos &eacute;quipes locales accompagnent au quotidien nos clients dans leur d&eacute;veloppement et leurs transformations <strong>en s'appuyant sur un &eacute;cosyst&egrave;me de professionnels en r&eacute;gions</strong> :</p>
+            <p>experts scientifiques, experts comptables, &eacute;tablissements bancaires, p&ocirc;les de comp&eacute;titivit&eacute;, f&eacute;d&eacute;rations professionnelles, avec un maillage de cabinets d'avocats et de m&eacute;decins ind&eacute;pendants.</p>
+          </div>
+          <div class="ancrage-map">
+            <img src="https://ayming-france.github.io/assets/maps/france-map.svg" alt="France" />
+          </div>
+        </div>
+      </div>
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 15: IMPLANTATION -->
+    <section class="slide" data-chapter="implantation">
+      <div class="slide-inner">
+        <h1 class="slide-title">
+          ... avec des bureaux dans <strong>14 pays</strong> pour une proximit&eacute; accrue<br>
+          avec nos clients et leur &eacute;cosyst&egrave;me
+        </h1>
+        <div class="implantation-container">
+          <img src="https://ayming-france.github.io/assets/maps/na-map.svg" alt="Am&eacute;rique du Nord" class="implantation-na"/>
+          <img src="https://ayming-france.github.io/assets/maps/eu-map.svg" alt="Europe" class="implantation-eu"/>
+        </div>
+      </div>
+      <div class="company-logo">
+        <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/07/Ayming.png" alt="Ayming">
+      </div>
+    </section>
+
+    <!-- SLIDE 16: QUESTIONS -->
     <section class="slide" data-chapter="questions">
       <div class="slide-inner">
         <h1 class="slide-title">
