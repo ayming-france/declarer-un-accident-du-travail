@@ -609,29 +609,47 @@
           plus loin
         </h1>
 
-        <div class="three-columns">
-          <div class="column-card">
-            <div class="card-image">
-              <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/10/add-on-myacci.jpg" alt="MyAcci+ mobile app">
+        <style>
+          .option-card { text-decoration: none; color: inherit; flex: 1; max-width: 320px; border-radius: 16px; }
+          .option-card.static .column-card { cursor: default; }
+          .option-card .card-image { position: relative; overflow: hidden; border-radius: 12px; }
+          .option-card .card-image img { transition: transform 0.4s ease; }
+          .option-card:hover .card-image img { transform: scale(1.03); }
+          .option-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; background: linear-gradient(135deg, #003d79, #0ab38c); color: #fff; }
+        </style>
+
+        <div style="display: flex; justify-content: center; gap: 32px; width: 100%; max-width: 1050px;">
+          <div class="option-card static">
+            <div class="column-card">
+              <div class="card-image">
+                <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/10/add-on-myacci.jpg" alt="MyAcci+ mobile app">
+              </div>
+              <span class="option-badge">En option</span>
+              <h3>Signalez les situations dangereuses</h3>
+              <p>Application mobile MyAcci+ pour signaler accidents, presqu'accidents et situations dangereuses directement sur le terrain. Preuves horodatées et géolocalisées.</p>
             </div>
-            <h3>Signalez les situations dangereuses</h3>
-            <p>Application mobile MyAcci+ pour signaler accidents, presqu'accidents et situations dangereuses directement sur le terrain. Preuves horodatées et géolocalisées.</p>
           </div>
 
-          <div class="column-card">
-            <div class="card-image">
-              <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/10/Add-on-duerp.jpg" alt="DUERP Module">
+          <div class="option-card static">
+            <div class="column-card">
+              <div class="card-image">
+                <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/10/Add-on-duerp.jpg" alt="DUERP Module">
+              </div>
+              <span class="option-badge">En option</span>
+              <h3>Connectez vos accidents à votre DUERP</h3>
+              <p>Liaison automatique entre les accidents déclarés et votre Document Unique d'Évaluation des Risques Professionnels. Alimentez votre prévention en continu.</p>
             </div>
-            <h3>Connectez vos accidents à votre DUERP</h3>
-            <p>Liaison automatique entre les accidents déclarés et votre Document Unique d'Évaluation des Risques Professionnels. Alimentez votre prévention en continu.</p>
           </div>
 
-          <div class="column-card">
-            <div class="card-image">
-              <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/10/add-on-international.jpg" alt="International Coverage">
+          <div class="option-card static">
+            <div class="column-card">
+              <div class="card-image">
+                <img src="https://www.ayming.fr/wp-content/uploads/sites/3/2025/10/add-on-international.jpg" alt="International Coverage">
+              </div>
+              <span class="option-badge">En option</span>
+              <h3>Déclarez vos accidents à l'international</h3>
+              <p>Gestion des déclarations dans 20+ pays avec les formulaires et règles propres à chaque pays. Pour les groupes à implantation internationale.</p>
             </div>
-            <h3>Déclarez vos accidents à l'international</h3>
-            <p>Gestion des déclarations dans 20+ pays avec les formulaires et règles propres à chaque pays. Pour les groupes à implantation internationale.</p>
           </div>
         </div>
       </div>
